@@ -1,4 +1,7 @@
 import { HeroBanner } from "@/components/home/HeroBanner";
+import { NFTGrid } from "../components/nft/NFTGrid";
+import { NFTSearch } from "../components/nft/NFTSearch";
+import { NFTFilters } from "../components/nft/NFTFilters";
 
 export function HomePage() {
   return (
@@ -7,19 +10,33 @@ export function HomePage() {
 
       <section
         id="catalogo"
-        aria-labelledby="catalogo-title"
-        className="mt-16 scroll-mt-8"
+        className="mx-auto max-w-7xl px-4 py-12 md:px-8 md:py-16"
       >
-        <h2
-          id="catalogo-title"
-          className="text-xl font-semibold text-kurio-primary"
-        >
-          Todos os NFTs
-        </h2>
+        <div className="mb-8">
+          <p className="mb-2 text-sm font-medium text-kurio-primary">
+            Explore o marketplace
+          </p>
 
-        <p className="mt-3 text-sm text-kurio-muted">
-          Em breve, você poderá explorar nossa coleção de NFTs.
-        </p>
+          <h2 className="text-2xl font-bold text-kurio-text md:text-3xl">
+            Descubra NFTs incríveis
+          </h2>
+
+          <p className="mt-2 text-sm text-kurio-muted">
+            Explore coleções exclusivas e encontre seu próximo NFT.
+          </p>
+        </div>
+
+        <div className="mb-8">
+          <NFTSearch />
+        </div>
+
+        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
+          <NFTFilters />
+
+          <div className="min-w-0">
+            <NFTGrid />
+          </div>
+      </div>
       </section>
     </main>
   );

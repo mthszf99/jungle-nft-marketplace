@@ -17,6 +17,41 @@ const homeRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
   component: HomePage,
+
+validateSearch: (
+  search: Record<string, unknown>
+): {
+  search?: string;
+  categories?: string[];
+  networks?: string[];
+} => {
+  function parseArray(value: unknown): string[] | undefined {
+    if (typeof value === "string") {
+      const values = value.split(",").filter(Boolean);
+      return values.length > 0 ? values : undefined;
+    }
+
+    if (Array.isArray(value)) {
+      const values = value.filter(
+        (item): item is string => typeof item === "string"
+      );
+
+      return values.length > 0 ? values : undefined;
+    }
+
+    return undefined;
+  }
+
+  return {
+    search:
+      typeof search.search === "string"
+        ? search.search
+        : undefined,
+
+    categories: parseArray(search.categories),
+    networks: parseArray(search.networks),
+  };
+},
 });
 
 // Página do carrinho
