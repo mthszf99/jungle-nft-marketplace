@@ -1,25 +1,25 @@
-import { Button } from "@/components/ui/button";
+import { HeroBanner } from "@/components/home/HeroBanner";
 
 export function HomePage() {
   return (
-    <main className="mx-auto min-h-screen max-w-7xl px-6 py-16">
-      <section className="max-w-xl">
-        <p className="mb-4 text-sm text-kurio-primary">
-          Bem-vindo à Kurio
+    <main className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-12">
+      <HeroBanner />
+
+      <section
+        id="catalogo"
+        aria-labelledby="catalogo-title"
+        className="mt-16 scroll-mt-8"
+      >
+        <h2
+          id="catalogo-title"
+          className="text-xl font-semibold text-kurio-primary"
+        >
+          Todos os NFTs
+        </h2>
+
+        <p className="mt-3 text-sm text-kurio-muted">
+          Em breve, você poderá explorar nossa coleção de NFTs.
         </p>
-
-        <h1 className="text-4xl font-bold leading-tight md:text-5xl">
-          SEJA DONO DO FUTURO DA ARTE DIGITAL
-        </h1>
-
-        <p className="mt-6 text-kurio-muted">
-          Descubra NFTs exclusivos de criadores extraordinários.
-          Explore coleções digitais e encontre sua próxima obra de arte.
-        </p>
-
-        <Button className="mt-8 bg-kurio-primary text-kurio-background hover:bg-kurio-primary-hover">
-          Explorar NFTs
-        </Button>
       </section>
     </main>
   );
