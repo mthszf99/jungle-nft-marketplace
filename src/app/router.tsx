@@ -2,17 +2,14 @@ import {
   createRootRoute,
   createRoute,
   createRouter,
-  Outlet,
 } from "@tanstack/react-router";
+import { AppLayout } from "@/components/layout/AppLayout";
 
 import { HomePage } from "../pages/HomePage";
 import { CartPage } from "../pages/CartPage";
-import { NotFoundPage } from "../pages/NotFoundPage";
 
-// Rota principal da aplicação
 const rootRoute = createRootRoute({
-  component: () => <Outlet />,
-  notFoundComponent: NotFoundPage,
+  component: AppLayout,
 });
 
 // Página inicial

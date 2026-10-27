@@ -1,23 +1,26 @@
-import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 
 export function HomePage() {
   return (
-    <main className="min-h-screen bg-slate-950 p-10 text-white">
-      <h1 className="text-4xl font-bold text-purple-400">
-        Jungle NFT Marketplace
-      </h1>
+    <main className="mx-auto min-h-screen max-w-7xl px-6 py-16">
+      <section className="max-w-xl">
+        <p className="mb-4 text-sm text-kurio-primary">
+          Bem-vindo à Kurio
+        </p>
 
-      <p className="mt-4 text-lg">
-        Explore e descubra NFTs exclusivos.
-      </p>
+        <h1 className="text-4xl font-bold leading-tight md:text-5xl">
+          SEJA DONO DO FUTURO DA ARTE DIGITAL
+        </h1>
 
-      <Button
-        className="mt-6"
-        render={<Link to="/carrinho" />}
-      >
-        Acessar carrinho
-      </Button>
+        <p className="mt-6 text-kurio-muted">
+          Descubra NFTs exclusivos de criadores extraordinários.
+          Explore coleções digitais e encontre sua próxima obra de arte.
+        </p>
+
+        <Button className="mt-8 bg-kurio-primary text-kurio-background hover:bg-kurio-primary-hover">
+          Explorar NFTs
+        </Button>
+      </section>
     </main>
   );
 }

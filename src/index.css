@@ -137,3 +137,16 @@ body {
     @apply font-sans;
   }
 }
+/* Identidade visual do marketplace KURIO */
+@theme {
+  --color-kurio-background: #140d0a;
+  --color-kurio-surface: #24150f;
+  --color-kurio-surface-light: #332016;
+
+  --color-kurio-primary: #d99352;
+  --color-kurio-primary-hover: #e8a76a;
+
+  --color-kurio-text: #f5e8d8;
+  --color-kurio-muted: #b8a394;
+  --color-kurio-border: #493022;
+}
