@@ -3,6 +3,9 @@ import { test, expect } from "@playwright/test";
 test("não deve sobrescrever a pesquisa atual com uma resposta antiga", async ({
   page,
 }) => {
+    await page.setExtraHTTPHeaders({
+  "X-Kurio-Test-Scenario": "out-of-order",
+        });
   await page.goto("/");
 
   // Aguarda o catálogo inicial e o MSW estar ativo.

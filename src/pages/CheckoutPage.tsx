@@ -2,24 +2,64 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import { useMarketplace } from "../state/MarketplaceProvider";
 import { totalEth } from "../lib/eth";
+import { requestPurchase } from "../services/purchase";
+import { useNFTAvailability } from "../state/NFTAvailabilityProvider";
+
+
 export function CheckoutPage() {
   const { cart, user, checkout } = useMarketplace();
+  const { isSold } = useNFTAvailability();
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const key = useRef(crypto.randomUUID());
-  function submit() {
-    if (loading) return;
-    setLoading(true);
-    setError("");
-    try {
-      const order = checkout(key.current);
-      void navigate({ to: "/pedido/$orderId", params: { orderId: order.id } });
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Erro ao finalizar");
-      setLoading(false);
+
+async function submit() {
+  if (loading) return;
+
+  setLoading(true);
+  setError("");
+
+  try {
+    const unavailableNFTs = cart.filter((nft) =>
+      isSold(nft.id),
+    );
+
+    if (unavailableNFTs.length) {
+      throw new Error(
+        `NFTs indisponíveis: ${unavailableNFTs
+          .map((nft) => nft.name)
+          .join(", ")}`,
+      );
     }
+
+    const response = await requestPurchase(
+      key.current,
+      cart.map((nft) => nft.id),
+    );
+
+    if (!response.success) {
+      throw new Error(response.message);
+    }
+
+    const order = checkout(key.current);
+
+    await navigate({
+      to: "/pedido/$orderId",
+      params: {
+        orderId: order.id,
+      },
+    });
+  } catch (error) {
+    setError(
+      error instanceof Error
+        ? error.message
+        : "Erro ao finalizar pedido.",
+    );
+  } finally {
+    setLoading(false);
   }
+}
   return (
     <main className="mx-auto max-w-3xl px-4 py-12 md:px-6">
       <h1 className="mb-8 text-3xl font-bold">Checkout</h1>

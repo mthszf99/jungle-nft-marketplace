@@ -3,9 +3,11 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "../services/api";
 import type { NFT } from "../types/nft";
 import { useMarketplace } from "../state/MarketplaceProvider";
+import { useNFTAvailability } from "../state/NFTAvailabilityProvider";
 export function NFTDetailPage() {
   const { nftId } = useParams({ from: "/nft/$nftId" });
   const { add, cart } = useMarketplace();
+  const { isSold } = useNFTAvailability();
   const {
     data: nft,
     isPending,
@@ -26,6 +28,7 @@ export function NFTDetailPage() {
       </main>
     );
   const added = cart.some((item) => item.id === nft.id);
+  const sold = isSold(nft.id);
   return (
     <main className="mx-auto max-w-6xl px-4 py-12 md:px-6">
       <Link to="/" className="text-sm text-kurio-primary">
@@ -66,13 +69,25 @@ export function NFTDetailPage() {
             <p className="my-3 text-3xl font-bold text-kurio-primary">{nft.priceEth} ETH</p>
             <button
               type="button"
-              onClick={() => add(nft)}
-              disabled={added}
-              className="w-full rounded-xl bg-kurio-primary px-5 py-3 font-semibold text-kurio-background disabled:opacity-60"
+              onClick={() => {
+                if (!sold) {
+                  add(nft);
+                }
+              }}
+              disabled={added || sold}
+              className={`w-full rounded-xl px-5 py-3 font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
+                sold
+                  ? "bg-red-500 text-white"
+                  : "bg-kurio-primary text-kurio-background"
+              }`}
             >
-              {added ? "Adicionado ao carrinho" : "Adicionar ao carrinho"}
+              {sold
+                ? "NFT vendido"
+                : added
+                  ? "Adicionado ao carrinho"
+                  : "Adicionar ao carrinho"}
             </button>
-            {added && (
+            {added && !sold && (
               <Link to="/carrinho" className="mt-4 block text-center text-kurio-primary">
                 Ver carrinho →
               </Link>

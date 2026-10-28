@@ -46,8 +46,11 @@ http.get("/api/nfts", async ({ request }) => {
 
   const url = new URL(request.url);
 
-    // Simulação determinística de concorrência (somente desenvolvimento).
-  if (import.meta.env.DEV) {
+// Simulação de concorrência ativada exclusivamente pelo teste.
+if (
+  import.meta.env.DEV &&
+  request.headers.get("X-Kurio-Test-Scenario") === "out-of-order"
+) {
   const searchTerm = url.searchParams.get("search")?.toLowerCase();
 
   if (searchTerm === "emerald") {
