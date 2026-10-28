@@ -1,9 +1,27 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
+
 import type { NFT } from "../types/nft";
 import { totalEth } from "../lib/eth";
 
-type User = { name: string; email: string };
-type Order = { id: string; items: NFT[]; totalEth: string; createdAt: string; email: string };
+type User = {
+  name: string;
+  email: string;
+};
+
+type Order = {
+  id: string;
+  items: NFT[];
+  totalEth: string;
+  createdAt: string;
+  email: string;
+};
+
 type Store = {
   cart: NFT[];
   user: User | null;
@@ -18,7 +36,14 @@ type Store = {
   connectWallet: (address: string) => void;
   disconnectWallet: (address: string) => void;
 };
+
+type AccountData = {
+  orders: Order[];
+  wallets: string[];
+};
+
 const Context = createContext<Store | null>(null);
+
 function stored<T>(key: string, fallback: T): T {
   try {
     const value = localStorage.getItem(key);
@@ -27,54 +52,181 @@ function stored<T>(key: string, fallback: T): T {
     return fallback;
   }
 }
-export function MarketplaceProvider({ children }: { children: ReactNode }) {
-  const [cart, setCart] = useState<NFT[]>(() => stored("kurio-cart", []));
-  const [user, setUser] = useState<User | null>(() => stored("kurio-user", null));
-  const [orders, setOrders] = useState<Order[]>(() => stored("kurio-orders", []));
-  const [wallets, setWallets] = useState<string[]>(() => stored("kurio-wallets", []));
+
+function accountKey(email: string) {
+  return `kurio-account:${email.trim().toLowerCase()}`;
+}
+
+function loadAccount(email: string): AccountData {
+  return stored<AccountData>(accountKey(email), {
+    orders: [],
+    wallets: [],
+  });
+}
+
+export function MarketplaceProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const [cart, setCart] = useState<NFT[]>(() =>
+    stored("kurio-cart", []),
+  );
+
+  const [user, setUser] = useState<User | null>(() =>
+    stored("kurio-user", null),
+  );
+
+  const [accounts, setAccounts] = useState<Record<string, AccountData>>(
+    () => ({}),
+  );
+
+  const email = user?.email ?? null;
+
+  const account = email
+    ? (accounts[email] ?? loadAccount(email))
+    : { orders: [], wallets: [] };
+
+  const orders = account.orders;
+  const wallets = account.wallets;
+
   useEffect(() => {
     localStorage.setItem("kurio-cart", JSON.stringify(cart));
   }, [cart]);
+
   useEffect(() => {
     localStorage.setItem("kurio-user", JSON.stringify(user));
   }, [user]);
-  useEffect(() => {
-    localStorage.setItem("kurio-orders", JSON.stringify(orders));
-  }, [orders]);
-  useEffect(() => {
-    localStorage.setItem("kurio-wallets", JSON.stringify(wallets));
-  }, [wallets]);
-  const add = (nft: NFT) =>
-    setCart((prev) => (prev.some((item) => item.id === nft.id) ? prev : [...prev, nft]));
-  const remove = (id: string) => setCart((prev) => prev.filter((item) => item.id !== id));
-  const clear = () => setCart([]);
-  const signIn = (name: string, email: string) => setUser({ name, email: email.toLowerCase() });
+
+  function updateAccount(
+    targetEmail: string,
+    updater: (current: AccountData) => AccountData,
+  ) {
+    setAccounts((previous) => {
+      const current =
+        previous[targetEmail] ?? loadAccount(targetEmail);
+
+      const updated = updater(current);
+
+      localStorage.setItem(
+        accountKey(targetEmail),
+        JSON.stringify(updated),
+      );
+
+      return {
+        ...previous,
+        [targetEmail]: updated,
+      };
+    });
+  }
+
+  const add = (nft: NFT) => {
+    setCart((previous) =>
+      previous.some((item) => item.id === nft.id)
+        ? previous
+        : [...previous, nft],
+    );
+  };
+
+  const remove = (id: string) => {
+    setCart((previous) =>
+      previous.filter((item) => item.id !== id),
+    );
+  };
+
+  const clear = () => {
+    setCart([]);
+  };
+
+  const signIn = (name: string, userEmail: string) => {
+    const normalizedEmail = userEmail.trim().toLowerCase();
+
+    setUser({
+      name,
+      email: normalizedEmail,
+    });
+  };
+
   const signOut = () => {
     setUser(null);
-    setWallets([]);
   };
+
   const checkout = (idempotencyKey: string): Order => {
-    if (!user) throw new Error("Entre na sua conta para finalizar.");
-    const existing = orders.find((order) => order.id === idempotencyKey);
-    if (existing) return existing;
-    if (!cart.length) throw new Error("Seu carrinho está vazio.");
-    const order = {
+    if (!email) {
+      throw new Error("Entre na sua conta para finalizar.");
+    }
+
+    const currentAccount =
+      accounts[email] ?? loadAccount(email);
+
+    const existing = currentAccount.orders.find(
+      (order) => order.id === idempotencyKey,
+    );
+
+    if (existing) {
+      return existing;
+    }
+
+    if (!cart.length) {
+      throw new Error("Seu carrinho está vazio.");
+    }
+
+    const order: Order = {
       id: idempotencyKey,
       items: [...cart],
-      totalEth: totalEth(cart.map((item) => item.priceEth)),
+      totalEth: totalEth(
+        cart.map((item) => item.priceEth),
+      ),
       createdAt: new Date().toISOString(),
-      email: user.email,
+      email,
     };
-    setOrders((prev) =>
-      prev.some((item) => item.id === idempotencyKey) ? prev : [order, ...prev],
-    );
+
+    updateAccount(email, (current) => {
+      if (
+        current.orders.some(
+          (item) => item.id === idempotencyKey,
+        )
+      ) {
+        return current;
+      }
+
+      return {
+        ...current,
+        orders: [order, ...current.orders],
+      };
+    });
+
     setCart([]);
+
     return order;
   };
-  const connectWallet = (address: string) =>
-    setWallets((prev) => (prev.includes(address) ? prev : [...prev, address]));
-  const disconnectWallet = (address: string) =>
-    setWallets((prev) => prev.filter((item) => item !== address));
+
+  const connectWallet = (address: string) => {
+    if (!email) {
+      return;
+    }
+
+    updateAccount(email, (current) => ({
+      ...current,
+      wallets: current.wallets.includes(address)
+        ? current.wallets
+        : [...current.wallets, address],
+    }));
+  };
+
+  const disconnectWallet = (address: string) => {
+    if (!email) {
+      return;
+    }
+
+    updateAccount(email, (current) => ({
+      ...current,
+      wallets: current.wallets.filter(
+        (item) => item !== address,
+      ),
+    }));
+  };
+
   return (
     <Context.Provider
       value={{
@@ -96,9 +248,14 @@ export function MarketplaceProvider({ children }: { children: ReactNode }) {
     </Context.Provider>
   );
 }
+
 // eslint-disable-next-line react-refresh/only-export-components
 export function useMarketplace() {
   const context = useContext(Context);
-  if (!context) throw new Error("MarketplaceProvider ausente");
+
+  if (!context) {
+    throw new Error("MarketplaceProvider ausente");
+  }
+
   return context;
 }
