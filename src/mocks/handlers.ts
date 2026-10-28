@@ -1,7 +1,25 @@
-import { http, HttpResponse } from "msw";
-
+import { delay, http, HttpResponse } from "msw";
 import { mockNFTs } from "./data";
 import { toWei } from "../lib/eth";
+
+type MockScenario = "normal" | "slow" | "error";
+
+function getMockScenario(request: Request): MockScenario {
+  const url = new URL(request.url);
+
+  // As simulações ficam disponíveis apenas no ambiente de desenvolvimento.
+  if (!import.meta.env.DEV) {
+    return "normal";
+  }
+
+  const scenario = url.searchParams.get("mockScenario");
+
+  if (scenario === "slow" || scenario === "error") {
+    return scenario;
+  }
+
+  return "normal";
+}
 
 export const handlers = [
   http.get("/api/nfts/:id", ({ params }) => {
@@ -10,9 +28,36 @@ export const handlers = [
       ? HttpResponse.json(nft)
       : HttpResponse.json({ message: "NFT não encontrado" }, { status: 404 });
   }),
-  http.get("/api/nfts", ({ request }) => {
-    console.log("✅ Handler executado:", request.url);
-    const url = new URL(request.url);
+http.get("/api/nfts", async ({ request }) => {
+  const scenario = getMockScenario(request);
+
+  if (scenario === "slow") {
+    await delay(2500);
+  }
+
+  if (scenario === "error") {
+    return HttpResponse.json(
+      {
+        message: "Falha simulada ao carregar o catálogo.",
+      },
+      { status: 500 },
+    );
+  }
+
+  const url = new URL(request.url);
+
+    // Simulação determinística de concorrência (somente desenvolvimento).
+  if (import.meta.env.DEV) {
+  const searchTerm = url.searchParams.get("search")?.toLowerCase();
+
+  if (searchTerm === "emerald") {
+    await delay(2000);
+  }
+
+  if (searchTerm === "golden") {
+    await delay(100);
+  }
+}
 
     // Pesquisa
     const search = url.searchParams.get("search")?.trim().toLowerCase();
