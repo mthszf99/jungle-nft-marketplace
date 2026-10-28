@@ -1,15 +1,10 @@
 import { Link } from "@tanstack/react-router";
-import {
-  Home,
-  Heart,
-  ShoppingCart,
-  UserRound,
-} from "lucide-react";
+import { Home, Heart, ShoppingCart, UserRound } from "lucide-react";
 
 type NavigationItem = {
   label: string;
   icon: typeof Home;
-  to?: "/" | "/carrinho";
+  to?: "/" | "/carrinho" | "/perfil";
 };
 
 const navigationItems: NavigationItem[] = [
@@ -30,6 +25,7 @@ const navigationItems: NavigationItem[] = [
   {
     label: "Perfil",
     icon: UserRound,
+    to: "/perfil",
   },
 ];
 
@@ -52,9 +48,7 @@ export function MobileNavigation() {
               >
                 <Icon size={20} />
 
-                <span className="text-[10px]">
-                  {item.label}
-                </span>
+                <span className="text-[10px]">{item.label}</span>
               </span>
             );
           }
@@ -74,9 +68,7 @@ export function MobileNavigation() {
             >
               <Icon size={20} />
 
-              <span className="text-[10px]">
-                {item.label}
-              </span>
+              <span className="text-[10px]">{item.label}</span>
             </Link>
           );
         })}

@@ -5,27 +5,27 @@ import { RouterProvider } from "@tanstack/react-router";
 
 import { QueryProvider } from "./app/providers/QueryProvider";
 import { router } from "./app/router";
+import { MarketplaceProvider } from "./state/MarketplaceProvider";
 
 import "./index.css";
 
 async function enableMocking() {
-  if (import.meta.env.DEV) {
-    const { worker } = await import("./mocks/browser");
+  const { worker } = await import("./mocks/browser");
 
-    await worker.start();
-  }
+  await worker.start();
 }
 
 async function bootstrap() {
-
   await enableMocking();
 
   createRoot(document.getElementById("root")!).render(
     <StrictMode>
       <QueryProvider>
-        <RouterProvider router={router} />
+        <MarketplaceProvider>
+          <RouterProvider router={router} />
+        </MarketplaceProvider>
       </QueryProvider>
-    </StrictMode>
+    </StrictMode>,
   );
 }
 

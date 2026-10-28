@@ -1,17 +1,21 @@
 import { http, HttpResponse } from "msw";
 
 import { mockNFTs } from "./data";
+import { toWei } from "../lib/eth";
 
 export const handlers = [
+  http.get("/api/nfts/:id", ({ params }) => {
+    const nft = mockNFTs.find((item) => item.id === params.id);
+    return nft
+      ? HttpResponse.json(nft)
+      : HttpResponse.json({ message: "NFT não encontrado" }, { status: 404 });
+  }),
   http.get("/api/nfts", ({ request }) => {
     console.log("✅ Handler executado:", request.url);
     const url = new URL(request.url);
 
     // Pesquisa
-    const search = url.searchParams
-      .get("search")
-      ?.trim()
-      .toLowerCase();
+    const search = url.searchParams.get("search")?.trim().toLowerCase();
 
     // Categorias selecionadas
     const categories = url.searchParams
@@ -26,7 +30,6 @@ export const handlers = [
       .filter(Boolean);
 
     const filteredNFTs = mockNFTs.filter((nft) => {
-      
       // Filtro por nome ou coleção
       const matchesSearch =
         !search ||
@@ -34,49 +37,67 @@ export const handlers = [
         nft.collection.toLowerCase().includes(search);
 
       // Filtro por categoria
-      const matchesCategory =
-        categories.length === 0 ||
-        categories.includes(nft.category);
+      const matchesCategory = categories.length === 0 || categories.includes(nft.category);
 
       // Filtro por rede
-      const matchesNetwork =
-        networks.length === 0 ||
-        networks.includes(nft.network);
+      const matchesNetwork = networks.length === 0 || networks.includes(nft.network);
 
-      return (
-        matchesSearch &&
-        matchesCategory &&
-        matchesNetwork
-      );
+      return matchesSearch && matchesCategory && matchesNetwork;
     });
 
     const sort = url.searchParams.get("sort") ?? "recent";
 
-const sortedNFTs = [...filteredNFTs].sort((a, b) => {
-  switch (sort) {
-    case "price-asc":
-      return Number(a.priceEth) - Number(b.priceEth);
+    // Paginação
+    const requestedPage = Number(url.searchParams.get("page") ?? "1");
+    const requestedLimit = Number(url.searchParams.get("limit") ?? "9");
 
-    case "price-desc":
-      return Number(b.priceEth) - Number(a.priceEth);
+    const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
 
-    case "recent":
-    default:
-      return (
-        new Date(b.createdAt).getTime() -
-        new Date(a.createdAt).getTime()
-      );
-  }
-});
+    const limit =
+      Number.isSafeInteger(requestedLimit) && requestedLimit > 0 ? Math.min(requestedLimit, 50) : 9;
 
-return HttpResponse.json({
-  items: sortedNFTs,
-  pagination: {
-    page: 1,
-    limit: 9,
-    totalItems: sortedNFTs.length,
-    totalPages: Math.ceil(sortedNFTs.length / 9),
-  },
-});
+    const sortedNFTs = [...filteredNFTs].sort((a, b) => {
+      switch (sort) {
+        case "price-asc":
+          return toWei(a.priceEth) < toWei(b.priceEth)
+            ? -1
+            : toWei(a.priceEth) > toWei(b.priceEth)
+              ? 1
+              : 0;
+
+        case "price-desc":
+          return toWei(a.priceEth) > toWei(b.priceEth)
+            ? -1
+            : toWei(a.priceEth) < toWei(b.priceEth)
+              ? 1
+              : 0;
+
+        case "recent":
+        default:
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      }
+    });
+
+    // Total de NFTs após aplicar os filtros
+    const totalItems = sortedNFTs.length;
+
+    // Quantidade total de páginas
+    const totalPages = Math.ceil(totalItems / limit);
+
+    // Índice inicial da página solicitada
+    const startIndex = (page - 1) * limit;
+
+    // NFTs pertencentes à página atual
+    const paginatedNFTs = sortedNFTs.slice(startIndex, startIndex + limit);
+
+    return HttpResponse.json({
+      items: paginatedNFTs,
+      pagination: {
+        page,
+        limit,
+        totalItems,
+        totalPages,
+      },
+    });
   }),
 ];

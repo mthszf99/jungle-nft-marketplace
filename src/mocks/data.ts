@@ -5,8 +5,7 @@ export const mockNFTs: NFT[] = [
     id: "nft-001",
     tokenId: "0042",
     name: "Emerald Ape #042",
-    description:
-      "Um colecionável digital da coleção Kurio Apes, verificado na Ethereum.",
+    description: "Um colecionável digital da coleção Kurio Apes, verificado na Ethereum.",
     imageUrl: "/images/nfts/emerald-ape.png",
     priceEth: "1.19",
     network: "ethereum",
@@ -20,8 +19,7 @@ export const mockNFTs: NFT[] = [
     id: "nft-002",
     tokenId: "0009",
     name: "Sage Nomad #009",
-    description:
-      "Um colecionável digital exclusivo da coleção Kurio Apes.",
+    description: "Um colecionável digital exclusivo da coleção Kurio Apes.",
     imageUrl: "/images/nfts/sage-nomad.png",
     priceEth: "1.69",
     network: "ethereum",
@@ -35,8 +33,7 @@ export const mockNFTs: NFT[] = [
     id: "nft-003",
     tokenId: "0552",
     name: "Neon Vessel #552",
-    description:
-      "NFT raro da coleção Kurio Apes.",
+    description: "NFT raro da coleção Kurio Apes.",
     imageUrl: "/images/nfts/neon-vessel.png",
     priceEth: "1.99",
     network: "polygon",

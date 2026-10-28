@@ -21,8 +21,9 @@ const networks: { label: string; value: NFTNetwork }[] = [
 
 export function NFTFilters() {
   const navigate = useNavigate({ from: "/" });
-  const { categories: selectedCategories = [], networks: selectedNetworks = [] } =
-    useSearch({ from: "/" });
+  const { categories: selectedCategories = [], networks: selectedNetworks = [] } = useSearch({
+    from: "/",
+  });
 
   function toggleCategory(category: NFTCategory) {
     const updatedCategories = selectedCategories.includes(category)
@@ -32,9 +33,8 @@ export function NFTFilters() {
     void navigate({
       search: (previous) => ({
         ...previous,
-        categories: updatedCategories.length
-          ? updatedCategories
-          : undefined,
+        categories: updatedCategories.length ? updatedCategories : undefined,
+        page: undefined,
       }),
       replace: true,
     });
@@ -48,9 +48,8 @@ export function NFTFilters() {
     void navigate({
       search: (previous) => ({
         ...previous,
-        networks: updatedNetworks.length
-          ? updatedNetworks
-          : undefined,
+        networks: updatedNetworks.length ? updatedNetworks : undefined,
+        page: undefined,
       }),
       replace: true,
     });
@@ -62,20 +61,18 @@ export function NFTFilters() {
         ...previous,
         categories: undefined,
         networks: undefined,
+        page: undefined,
       }),
       replace: true,
     });
   }
 
-  const hasActiveFilters =
-    selectedCategories.length > 0 || selectedNetworks.length > 0;
+  const hasActiveFilters = selectedCategories.length > 0 || selectedNetworks.length > 0;
 
   return (
     <aside className="space-y-6 rounded-2xl border border-kurio-border bg-kurio-surface p-5">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-kurio-text">
-          Filtros
-        </h3>
+        <h3 className="text-lg font-semibold text-kurio-text">Filtros</h3>
 
         {hasActiveFilters && (
           <button
@@ -89,9 +86,7 @@ export function NFTFilters() {
       </div>
 
       <fieldset>
-        <legend className="mb-3 text-sm font-semibold text-kurio-text">
-          Categorias
-        </legend>
+        <legend className="mb-3 text-sm font-semibold text-kurio-text">Categorias</legend>
 
         <div className="space-y-3">
           {categories.map((category) => (
@@ -115,9 +110,7 @@ export function NFTFilters() {
       <div className="border-t border-kurio-border" />
 
       <fieldset>
-        <legend className="mb-3 text-sm font-semibold text-kurio-text">
-          Blockchain
-        </legend>
+        <legend className="mb-3 text-sm font-semibold text-kurio-text">Blockchain</legend>
 
         <div className="space-y-3">
           {networks.map((network) => (

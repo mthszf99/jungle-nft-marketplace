@@ -1,9 +1,6 @@
 import type { NFT, NFTCategory, NFTNetwork } from "./nft";
 
-export type NFTSort =
-  | "recent"
-  | "price-asc"
-  | "price-desc";
+export type NFTSort = "recent" | "price-asc" | "price-desc";
 
 export interface NFTFilters {
   search?: string;

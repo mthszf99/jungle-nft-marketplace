@@ -2,22 +2,25 @@ import { useNFTs } from "../../hooks/useNFTs";
 import { NFTCard } from "./NFTCard";
 import { useSearch } from "@tanstack/react-router";
 import type { NFTCategory, NFTNetwork } from "../../types/nft";
+import { NFTPagination } from "./NFTPagination";
 
 export function NFTGrid() {
-const { search, categories, networks } = useSearch({ from: "/" });
+  const { search, categories, networks, sort, page } = useSearch({
+    from: "/",
+  });
 
-const { data, isPending, isError, refetch } = useNFTs({
-  search,
-  categories: categories as NFTCategory[] | undefined,
-  networks: networks as NFTNetwork[] | undefined,
-});
+  const { data, isPending, isError, refetch } = useNFTs({
+    search,
+    categories: categories as NFTCategory[] | undefined,
+    networks: networks as NFTNetwork[] | undefined,
+    sort,
+    page: page ?? 1,
+    limit: 9,
+  });
 
   if (isPending) {
     return (
-      <div
-        role="status"
-        className="py-16 text-center text-kurio-muted"
-      >
+      <div role="status" className="py-16 text-center text-kurio-muted">
         Carregando NFTs...
       </div>
     );
@@ -25,13 +28,8 @@ const { data, isPending, isError, refetch } = useNFTs({
 
   if (isError) {
     return (
-      <div
-        role="alert"
-        className="flex flex-col items-center gap-4 py-16 text-center"
-      >
-        <p className="text-kurio-muted">
-          Não foi possível carregar os NFTs.
-        </p>
+      <div role="alert" className="flex flex-col items-center gap-4 py-16 text-center">
+        <p className="text-kurio-muted">Não foi possível carregar os NFTs.</p>
 
         <button
           type="button"
@@ -45,18 +43,18 @@ const { data, isPending, isError, refetch } = useNFTs({
   }
 
   if (!data || data.items.length === 0) {
-    return (
-      <div className="py-16 text-center text-kurio-muted">
-        Nenhum NFT encontrado.
-      </div>
-    );
+    return <div className="py-16 text-center text-kurio-muted">Nenhum NFT encontrado.</div>;
   }
 
   return (
-    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-      {data.items.map((nft) => (
-        <NFTCard key={nft.id} nft={nft} />
-      ))}
+    <div>
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+        {data.items.map((nft) => (
+          <NFTCard key={nft.id} nft={nft} />
+        ))}
+      </div>
+
+      <NFTPagination totalPages={data.pagination.totalPages} />
     </div>
   );
 }

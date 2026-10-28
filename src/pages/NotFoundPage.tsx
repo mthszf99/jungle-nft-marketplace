@@ -7,9 +7,7 @@ export function NotFoundPage() {
 
       <p>A página que você procura não existe.</p>
 
-      <Link to="/">
-        Voltar para o início
-      </Link>
+      <Link to="/">Voltar para o início</Link>
     </main>
   );
 }

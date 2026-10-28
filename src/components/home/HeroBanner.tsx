@@ -12,9 +12,7 @@ export function HeroBanner() {
       {/* Banner desktop */}
       <div className="hidden items-center gap-12 md:grid md:grid-cols-2">
         <div>
-          <p className="mb-5 text-xs tracking-[0.15em] text-kurio-text">
-            Bem-vindo à Kurio
-          </p>
+          <p className="mb-5 text-xs tracking-[0.15em] text-kurio-text">Bem-vindo à Kurio</p>
 
           <h1
             id="hero-title"
@@ -24,9 +22,8 @@ export function HeroBanner() {
           </h1>
 
           <p className="mt-5 max-w-md text-sm leading-relaxed text-kurio-muted">
-            Descubra NFTs selecionados de criadores emergentes e consagrados.
-            Colecione arte digital rara, apoie artistas e tenha uma parte da
-            cultura da internet.
+            Descubra NFTs selecionados de criadores emergentes e consagrados. Colecione arte digital
+            rara, apoie artistas e tenha uma parte da cultura da internet.
           </p>
 
           <button
@@ -51,9 +48,7 @@ export function HeroBanner() {
       <div className="relative overflow-hidden rounded-3xl bg-kurio-surface p-4 md:hidden">
         <div className="relative z-10 flex min-h-48 items-center">
           <div className="w-[58%]">
-            <p className="mb-2 text-xs text-kurio-text">
-              Bem-vindo à Kurio
-            </p>
+            <p className="mb-2 text-xs text-kurio-text">Bem-vindo à Kurio</p>
 
             <h1 className="text-xl font-bold leading-snug text-kurio-text">
               SEJA DONO DA CULTURA DIGITAL
@@ -81,10 +76,7 @@ export function HeroBanner() {
         </div>
 
         {/* Indicadores visuais do banner */}
-        <div
-          className="relative z-10 mt-3 flex justify-center gap-1.5"
-          aria-hidden="true"
-        >
+        <div className="relative z-10 mt-3 flex justify-center gap-1.5" aria-hidden="true">
           <span className="size-2 rounded-full bg-kurio-primary" />
           <span className="size-2 rounded-full bg-kurio-primary/50" />
           <span className="size-2 rounded-full bg-kurio-primary/50" />

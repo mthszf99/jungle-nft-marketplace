@@ -13,14 +13,15 @@ function SearchForm({ initialSearch }: SearchFormProps) {
   function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
-  void navigate({
-    search: (previous) => ({
-      ...previous,
-      search: searchTerm.trim() || undefined,
-    }),
-    replace: true,
+    void navigate({
+      search: (previous) => ({
+        ...previous,
+        search: searchTerm.trim() || undefined,
+        page: undefined,
+      }),
+      replace: true,
     });
-}
+  }
 
   function handleClear() {
     setSearchTerm("");
@@ -29,9 +30,10 @@ function SearchForm({ initialSearch }: SearchFormProps) {
       search: (previous) => ({
         ...previous,
         search: undefined,
+        page: undefined,
       }),
       replace: true,
-      });
+    });
   }
 
   return (
